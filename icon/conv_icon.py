@@ -69,5 +69,7 @@ if __name__ == "__main__":
         for line in fileinput.input(fout_xbm, inplace=1):
             if '[]' in line:
                 line = line.replace('[]','[] PROGMEM')
+            if 'static' in line:
+                line = line.replace('static', 'static const')
             sys.stdout.write(line)
         print'...Success!'
