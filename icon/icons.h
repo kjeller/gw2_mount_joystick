@@ -1,0 +1,8 @@
+#include "out/icon1.xbm"
+#include "out/icon2.xbm"
+#include "out/icon3.xbm"
+#include "out/icon4.xbm"
+#include "out/icon5.xbm"
+#include "out/icon6.xbm"
+#include "out/icon7.xbm"
+#include "out/icon8.xbm"
