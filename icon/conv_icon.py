@@ -7,6 +7,8 @@
 import wand.api
 import ctypes
 import os
+import sys
+import fileinput
 from wand.image import Image
 from wand.display import display
 from PIL import Image as ImagePIL
@@ -62,4 +64,10 @@ if __name__ == "__main__":
         invert(fout_png, fout_png)
         to_xbm(fout_png, fout_xbm)
         clean(fout_png)
+
+        # Add PROGMEM to each file
+        for line in fileinput.input(fout_xbm, inplace=1):
+            if '[]' in line:
+                line = line.replace('[]','[] PROGMEM')
+            sys.stdout.write(line)
         print'...Success!'
