@@ -58,21 +58,21 @@ int treatValue(int data) {
  * */
 Slot decode_slot(int x, int y) {
   Slot s;
-   if (x >= 0 && x <= 256 && y >= 0 && y <= 256 )
+   if (x >= 0 && x <= 256 && y >= 0 && y <= 256)
     s = S1;
-  else if (x <= 768 && x >= 256 && y == 0)
+  else if (x <= 768 && x >= 256 && y >= 0 && y <= 256)
     s = S2;
   else if (x >= 768 && y >= 0 && y <= 256)
     s = S3;
-  else if (x >= 1020 && y >= 256 && y <= 768)
+  else if (x >= 1000 && y >= 256 && y <= 768)
     s = S4;
   else if (x >= 768 && y >= 768)
     s = S5;
-  else if (x <= 768 && x >= 256 && y >= 1020)
+  else if (x <= 768 && x >= 256 && y >= 1000)
     s = S6;
   else if (y >= 768 && x >= 0 && x <= 256)
     s = S7;
-  else if (x == 0 && y <= 768 && y >= 256)
+  else if (x >= 0 && x <= 256 && y <= 768 && y >= 256)
     s = S8;
   else
     s = UNDEFINED;
@@ -106,9 +106,12 @@ void loop() {
   if(current != UNDEFINED) {
     prev = current;
     drawIcon(current-1);
+    delay(100); // delay for less random when stick is returning
   }
     
   Serial.print("Slot :");
-  Serial.println(current);
+  Serial.print(current);
+  Serial.print(", Prev : ");
+  Serial.println(prev);
   delay(100);
 }
