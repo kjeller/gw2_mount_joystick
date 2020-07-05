@@ -1,18 +1,9 @@
+#include <U8g2lib.h>
 #include <icons.h>
 
 #include <avr/pgmspace.h>
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
+/* Available icons defined in icons.h */
 const uint8_t * const icon[] = {
   (uint8_t*)icon1_bits, (uint8_t*)icon2_bits, (uint8_t*)icon3_bits, (uint8_t*)icon4_bits,
   (uint8_t*)icon5_bits, (uint8_t*)icon6_bits, (uint8_t*)icon7_bits, (uint8_t*)icon8_bits
@@ -32,23 +23,38 @@ enum Slot {
 Slot current = UNDEFINED;
 Slot prev = UNDEFINED;
 
-int ledPin = 13;
-int joyPin1 = 0;                 // slider variable connecetd to analog pin 0
-int joyPin2 = 1;                 // slider variable connecetd to analog pin 1
-int v1 = 0;                  // variable to read the value from the analog pin 0
-int v2 = 0;                  // variable to read the value from the analog pin 1
+/* Construct */
+U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2 (U8G2_R0);
+int joyStickPin1 = 0; // A0
+int joyStickPin2 = 1; // A1
+int joyStickSW = 12; //D12
 
 void setup() {
-  pinMode(ledPin, OUTPUT);              // initializes digital pins 0 to 7 as outputs
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.display();
-  delay(100);
-  display.clearDisplay();
-  Serial.begin(9600);
+  u8g2.begin();
 }
 
-int treatValue(int data) {
-  return (data * 9 / 1024) + 48;
+int i = 0;
+void loop() {
+  /* Read the values of the joystick*/
+  int v1 = analogRead(joyStickPin1);
+  delay(100);
+  int v2 = analogRead(joyStickPin2);
+
+  /* Get new state from jstick position */
+  Slot temp = decode_slot(v1, v2);
+  if(temp != UNDEFINED)
+    current = temp;
+
+  /* Picture loop */
+  u8g2.firstPage();
+  do {
+    if(current != UNDEFINED) {
+      prev = current;
+      drawIcon(current-1); //current in the range 1-8, icon range 0-7
+    }
+  } while ( u8g2.nextPage() );
+  
+  delay(100);  
 }
 
 /* 
@@ -81,37 +87,8 @@ Slot decode_slot(int x, int y) {
 }
 
 void drawIcon(int i) {
-  display.clearDisplay();
-  display.drawXBitmap(
-    (display.width()  - 64 ) / 2,
-    (display.height() - 64) / 2,
-    icon[i], 64, 64, 1);
-  display.display();
-}
-
-void loop() {
-  /* reads the value of the variable resistors */
-  v1 = analogRead(joyPin1);
-  delay(100);
-  v2 = analogRead(joyPin2);
-
-  Serial.print("X: ");
-  Serial.print(v1);
-  Serial.print("| Y: ");
-  Serial.println(v2);
-
-  /* Get new state from jstick position */
-  current = decode_slot(v1, v2);
-  
-  if(current != UNDEFINED) {
-    prev = current;
-    drawIcon(current-1);
-    delay(100); // delay for less random when stick is returning
-  }
-    
-  Serial.print("Slot :");
-  Serial.print(current);
-  Serial.print(", Prev : ");
-  Serial.println(prev);
-  delay(100);
+  u8g2.drawXBMP(
+    (u8g2.getDisplayWidth()  - 64 ) / 2,
+    (u8g2.getDisplayHeight() - 64) / 2,
+    64, 64, icon[i]);
 }
