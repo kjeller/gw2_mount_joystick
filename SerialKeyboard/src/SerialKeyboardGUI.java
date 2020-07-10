@@ -2,15 +2,17 @@ import com.fazecast.jSerialComm.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.NumberFormat;
 import java.util.*;
 
-public class SerialKeyboard implements PropertyChangeListener {
+/**
+ * A serial keyboard used for decoding predefined serial signals
+ * @author Karl Strålman
+ */
+public class SerialKeyboardGUI implements PropertyChangeListener  {
 
     public static final String SERIAL_PANEL = "Serial";
     public static final String KEYMAPPING_PANEL = "Keymappings";
@@ -18,7 +20,7 @@ public class SerialKeyboard implements PropertyChangeListener {
     public static final String DISCONNECT = "Disconnect";
     public static final int TOTAL_SLOTS = 8;
 
-    private SerialThread thread; // reference to thread
+    private SerialDecodeThread thread; // reference to thread
     private SerialPort serialPort; // serialport that can be selected from dropdown
     private int baudrate = 115200;
     private boolean connected = false;
@@ -158,7 +160,7 @@ public class SerialKeyboard implements PropertyChangeListener {
             } else {
                 System.out.println("Connected!");
                 connectButton.setText(DISCONNECT);
-                thread = new SerialThread(serialPort, keyList);
+                thread = new SerialDecodeThread(serialPort, keyList);
                 thread.start();
                 connected = true;
             }
@@ -177,7 +179,7 @@ public class SerialKeyboard implements PropertyChangeListener {
 
     /**
      * Tries to open selected serial port
-     * @return
+     * @return if serial port is open
      */
     boolean openSerialPort() {
         if(serialPort == null)
@@ -199,7 +201,7 @@ public class SerialKeyboard implements PropertyChangeListener {
         JFrame f = new JFrame("SerialKeyboard");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        SerialKeyboard sk = new SerialKeyboard();
+        SerialKeyboardGUI sk = new SerialKeyboardGUI();
         sk.addComponentstoPane(f.getContentPane());
 
         f.pack();
@@ -209,23 +211,12 @@ public class SerialKeyboard implements PropertyChangeListener {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException | InstantiationException |
+                IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
 
         // Let special EDT create UI
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                initGUI();
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(SerialKeyboardGUI::initGUI);
     }
-
-
 }
