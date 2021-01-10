@@ -14,6 +14,6 @@ The joystick enclosure can be found here: https://www.thingiverse.com/thing:4546
 
 # Further additions
 Things I might consider adding to the project:
-  - Define slots as <serial char> to <key mapping> rather than using pre-defined slots <slot n> to <key mapping> (where n = 1, 2 .. 8)
+  - Define slots as \<serial char\> to \<key mapping\> rather than using pre-defined slots <slot n> to <key mapping> (where n = 1, 2 .. 8)
   - Serial monitor in a tab when a connection has been established
  
